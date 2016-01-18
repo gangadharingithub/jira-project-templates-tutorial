@@ -1,0 +1,186 @@
+<html lang="en">
+    <head>
+	    <meta charset="utf-8" />
+	    <meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+	    <title>AUI - Default Page</title>
+	    <script type="text/javascript">
+        	AJS.$(document).ready(function() {
+        		// Shows the dialog when the "Show dialog" button is clicked
+        		
+				AJS.$("#create-leaf-button,a#branch_product,a#edit_product,a#remove_product").click(function() {
+				
+					var operation=AJS.$(this).attr('id');
+					
+					if(operation == "edit_product"){
+						
+						var id= AJS.$(this).attr('value'),
+					    name=AJS.$("section.aui-page-panel-content input#name_"+id).val(),
+					    version=AJS.$("section.aui-page-panel-content input#version_"+id).val(),
+					    description=AJS.$("section.aui-page-panel-content input#desc_"+id).val(),
+					    //parentId=AJS.$("section.aui-page-panel-content input#parentId_"+id).val();
+					    productId=id;
+					    			    	
+					    AJS.dialog2("#demo-dialog").show();	
+					    			    
+					    //alert(name +" :" + version +":" + description);				    
+					    AJS.$("div.aui-dialog2-content input#product_name").val(name);
+					    AJS.$("div.aui-dialog2-content input#product_version").val(version);
+					    AJS.$("div.aui-dialog2-content input#product_description").val(description);
+					    AJS.$("div.aui-dialog2-content input#productId").val(productId);
+					    //AJS.$("div.aui-dialog2-content input#parentID").val(parentId);						
+						
+					}else if(operation == "branch_product"){
+						
+						console.log("branch create")
+						//here current product id will become parent for the child
+						var id= AJS.$(this).attr('value');					
+						AJS.dialog2("#demo-dialog").show();					
+						AJS.$("div.aui-dialog2-content input#parentID").val(id);
+					
+					}else if(operation == "create-leaf-button"){
+										
+						AJS.dialog2("#demo-dialog").show();
+						
+					}else if(operation == "remove_product"){
+						
+						var id= AJS.$(this).attr('value'),
+						projectKeyVal = AJS.$("input#projectKey").val(),
+						url=AJS.contextPath()+"/secure/ProductStatusAction.jspa",
+						form = AJS.$('<form/>', {action : url, method : 'POST'}),
+						productId = AJS.$("<input type='text' name='productId'>"),
+						projectKey = AJS.$("<input type='text' name='projectKey'>");											
+						form.append(productId);
+						form.append(projectKey);
+						productId.val(id);
+						projectKey.val(projectKeyVal);					
+						if(confirm("are you sure ?")){							
+				    		form.submit();
+						}
+						
+					}				
+				    
+				});
+				
+				// Hides the dialog
+				AJS.$("#dialog-close-button").click(function(e) {
+					e.preventDefault();
+				    AJS.dialog2("#demo-dialog").hide();
+				});
+				
+				// submit form on click of the button.
+				AJS.$("#save-product-button").click(function(e) {
+				
+					e.preventDefault();
+					
+				    AJS.$("#operation-product").submit();
+				    
+				    /*
+				    AJS.messages.success({
+				       title: "Saved!",
+				       body: "That was great fun! Thank you."
+				    });
+				    AJS.messages.error({
+				       title: "Error while saving!",
+				       body: "That was not cool! check the issue."
+				    });
+				    */
+				    
+				});
+        	 });
+   		 </script>  
+    </head>
+    <body>
+    	<header class="aui-page-header">
+    		<div id="aui-message-bar"></div>
+		    <div class="aui-page-header-inner">		        
+		        <div class="aui-page-header-main">
+		            <h1>Product Summary</h1>
+		        </div>
+		        <div class="aui-page-header-actions">
+		            <div class="aui-buttons" id="create-leaf-button">
+		                <button id="create-leaf-button" class="aui-button aui-button-primary">Create</button>		               
+		            </div>
+		        </div>
+		    </div>
+		</header>
+    	<div class="aui-page-panel">
+		    <div class="aui-page-panel-inner">
+		        <section class="aui-page-panel-content">
+		            <!--<h2>Page content heading</h2>
+		            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>-->
+		            #set( $list = $hierarchyList )
+					#printHierarchy($list)
+					<input name="projectKey" id="projectKey" type="hidden" value="$projectKey">
+					#macro(printHierarchy $Hlist)
+					    <ul>
+					        #foreach($hierarchy in $Hlist)
+					        <li><a href="../../secure/ProductStatusAction.jspa?prodID=$hierarchy.product.iD">$hierarchy.product.name $hierarchy.product.version</a>					            
+					            <a id="edit_product" value='$hierarchy.product.iD' class="aui-icon aui-icon-small aui-iconfont-edit"></a>
+					            <a id="branch_product" value='$hierarchy.product.iD' class="aui-icon aui-icon-small aui-iconfont-devtools-branch"></a>					            
+					            <a id="remove_product" value='$hierarchy.product.iD' class="aui-icon aui-icon-small aui-iconfont-remove"></a>					            
+					            <input id=name_$hierarchy.product.iD type="hidden" value="$hierarchy.product.name"/>
+					            <input id='version_$hierarchy.product.iD' type="hidden" value="$hierarchy.product.version"/>
+					            <input id='desc_$hierarchy.product.iD' type="hidden" value="$hierarchy.product.description"/>
+					            <input id='parentId_$hierarchy.product.iD' type="hidden" value="$hierarchy.product.parentID"/> 					            
+					            #if(${hierarchy.subHierarchy.size()} != 0)
+					                #printHierarchy($hierarchy.subHierarchy)
+					            #end
+					        </li>
+					        #end
+					    </ul>
+					#end
+		        </section>
+		    </div>
+		</div>
+		<!-- Render the dialog -->
+		<section role="dialog" id="demo-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
+		    <!-- Dialog header -->
+		    <header class="aui-dialog2-header">
+		        <!-- The dialog's title -->
+		        <h2 class="aui-dialog2-header-main">Create Product</h2>
+		        <!-- Close icon -->
+		        <a class="aui-dialog2-header-close">
+		            <span class="aui-icon aui-icon-small aui-iconfont-close-dialog">Close</span>
+		        </a>
+		    </header>
+		    <!-- Main dialog content -->
+		    <div class="aui-dialog2-content">
+		    	<!--<form id="create-product" action="$req.contextPath/plugins/servlet/productservlet" method="POST" class="aui">-->
+		    	<form id="operation-product" action="$req.contextPath/secure/ProductStatusAction.jspa" class="aui">		    	
+				   <div class="field-group">
+				        <label for="name">Name
+				            <span class="aui-icon icon-required">(required)</span></label>
+				        <input class="text long-field" type="text" id="product_name" name="name" placeholder="product name">
+				        <div class="description">product name.</div>
+				    </div>
+				     <div class="field-group">
+				        <label for="version">Version
+				            <span class="aui-icon icon-required">(required)</span></label>
+				        <input class="text long-field" type="text" id="product_version" name="version" placeholder="product version">
+				        <div class="description">product version.</div>
+				    </div>
+				     <div class="field-group">
+				        <label for="description">Description
+				            <span class="aui-icon icon-required">(required)</span></label>
+				        <input class="text long-field" type="text" id="product_description" name="description" placeholder="product description">
+				        <input name="parentID" id="parentID" type="hidden" value="0">
+				        <input name="productId" id=productId type="hidden" value="0">
+				        <input name="projectKey" type="hidden" value="$projectKey">			        
+				        <div class="description">product description.</div>
+				    </div>				   
+				</form>
+		    </div>
+		    <!-- Dialog footer -->
+		    <footer class="aui-dialog2-footer">
+		        <!-- Actions to render on the right of the footer -->
+		        <div class="aui-dialog2-footer-actions">		        	
+		        	<!--<button class="aui-button aui-button-primary" id="update-product-button">Update</button>
+		        	<button class="aui-button aui-button-primary" id="sub-product-button">Add Sub-Product</button>
+		        	<button class="aui-button aui-button-primary" id="delete-product-button">Delete</button>-->
+		        	<button class="aui-button aui-button-primary" id="save-product-button">Save</button>        	
+		            <button id="dialog-close-button" class="aui-button aui-button-link">Close</button>
+		        </div>		       
+		    </footer>
+		</section>
+    </body>
+</html>

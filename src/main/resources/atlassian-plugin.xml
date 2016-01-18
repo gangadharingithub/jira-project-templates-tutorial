@@ -1,0 +1,144 @@
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>  
+        <!--  <bundle-instructions>
+          <Export-Package>my.external.pkg</Export-Package>
+          <Import-Package>com.google.gson,*;resolution:=optional</Import-Package>
+        </bundle-instructions> -->
+    </plugin-info>
+    
+
+    <!-- add our i18n resource -->
+    <resource type="i18n" name="i18n" location="jira-project-templates-plugin"/>
+    
+    <!-- add our web resources -->
+    <web-resource key="jira-project-templates-plugin-resources" name="jira-project-templates-plugin Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>       
+        
+        <resource type="download" name="jira-project-templates-plugin.css" location="/css/jira-project-templates-plugin.css"/>
+        <resource type="download" name="jira-project-templates-plugin.js" location="/js/jira-project-templates-plugin.js"/>
+        <!-- <resource type="download" name="images/" location="/images"/> -->
+        
+        <resource type="download" name="ui.jqgrid.css" location="css/ui.jqgrid.css"/>
+        <resource type="download" name="ui.jqgrid-bootstarp.css" location="css/ui.jqgrid-bootstarp.css"/>
+        
+        <resource type="download" name="jquery.jqGrid.min.js" location="js/jquery.jqGrid.min.js"/>
+        <resource type="download" name="grid.locale-en.js" location="js/grid.locale-en.js"/>
+        
+         <resource type="download" name="jquery-ui.min.css" location="css/jquery-ui.min.css">
+        	<param name="batch" value="false"/>
+        </resource>
+        
+        <resource type="download" name="jquery.multi-select.js" location="js/jquery.multi-select.js"/>
+        <resource type="download" name="images/" location="images/jquery-ui"/>
+
+        <context>jira-project-templates-plugin</context>
+    </web-resource>
+    
+    <web-resource key="my-project-template-resources" name="my-project-template Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>         
+        <dependency>com.atlassian.auiplugin:jquery</dependency>
+        <dependency>com.atlassian.auiplugin:jquery-ui-other</dependency>        
+        
+        <transformation extension="soy">
+            <transformer key="soyTransformer"/>
+        </transformation>
+
+        <resource type="download" name="MyProjectTemplate.soy.js" location="/soy/MyProjectTemplate.soy"/>
+
+        <resource type="download" name="images/" location="/images">
+            <param name="content-type" value="image/png; charset=binary"/>
+        </resource>
+
+        <context>atl.general</context>
+        <context>atl.admin</context>
+    </web-resource>
+    
+    <project-blueprint key="my-project-template" weight="90">
+        <label key="tm.project.template.name"/>
+        <description key="tm.project.template.description"/>
+        <longDescription key="tm.project.template.description.long"/>
+
+        <infoPage soy-template="JIRA.Templates.ProjectTemplates.Tutorial.renderMyProjectTemplateExplanation" />
+
+        <icon location="images/my-template-icon.png"/>
+        <backgroundIcon location="images/my-template-background.png"/>
+
+        <add-project>
+            <!-- <hook class="com.example.plugins.tutorial.MyAddProjectHook"/> -->
+            <hook class="com.transcendmanagement.jira.plugin.MyAddProjectHook"/>
+            <descriptor file="/config/my-project-template-config.json"/>
+        </add-project>
+    </project-blueprint>	
+    
+	<!-- Project Overview section -->
+	<project-tabpanel key="my.project.product.tabpanel" name="my.project.product.tabpanel" 
+	i18n-name-key="my.project.product.tabpanel.name" class ="com.transcendmanagement.jira.plugin.product.ProductSummaryTabPanel">	
+	<!-- class="com.atlassian.jira.plugin.projectpanel.impl.GenericProjectTabPanel" -->
+	    <description>Product Summary</description>
+	     <label>Product Summary</label>
+	    <order>10</order>
+	    <param name="noTitle">true</param>
+	    <resource type="velocity" name="view" location="templates/tabpanels/projectTabPanel1.vm"/>	    	    
+  	</project-tabpanel>
+  	
+	<component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" filter=""/>
+  	<component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" filter=""/>
+  	
+	<!-- <servlet name="Product Servlet" i18n-name-key="product-servlet.name" key="product-servlet" 
+		class="com.transcendmanagement.jira.plugin.product.ProductServlet">
+	    <description key="product-servlet.description">The Product Servlet Plugin</description>
+	    <url-pattern>/productservlet</url-pattern>
+  	</servlet> -->
+  	
+  	<webwork1 key="productStatus-webwork" name="ProductStatusAction">
+	    <actions>
+	        <action name="com.transcendmanagement.jira.plugin.action.ProductStatusAction"
+	                alias="ProductStatusAction">
+	        </action>
+	    </actions>
+	</webwork1>
+	<!-- Rest resources  -->
+	
+	<rest key="project-templates-resources" path="/project-templates-rest" version="1.0">
+		<description>Provides the REST resource for the Project Template plug-in.</description>
+	</rest>
+  
+  
+  	<!-- Project Overview section -->
+    
+    <!-- publish our component -->
+   <!--  <component key="myPluginComponent" class="com.transcendmanagement.jira.plugin.MyPluginComponentImpl" public="true">
+        <interface>com.transcendmanagement.jira.plugin.MyPluginComponent</interface>
+    </component> -->
+    
+    <!-- import from the product container -->
+    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
+    <!--  custom fields -->
+    
+    <!-- <customfield-type name="BMC Section" key="BMC_Section" 
+		class="com.transcendmanagement.jira.plugin.customfields.singleselect.SingleSelectCFType">
+		<description >
+			Business Model Canvas Section
+		</description>
+		<resource name="view" type="velocity" location="/templates/customfields/room-select-list/view.vm"/>
+		<resource name="edit" type="velocity" location="/templates/customfields/room-select-list/edit.vm"/>
+		<resource name="view" type="velocity" location="templates/customfields/singleselect/bmc_section/view.vm"/>
+		<resource name="edit" type="velocity" location="templates/customfields/singleselect/bmc_section/edit.vm"/>
+	</customfield-type> -->
+	
+	<component-import key="ao" name="Active Objects service" interface="com.atlassian.activeobjects.external.ActiveObjects">
+   		<description>Component to access Active Objects functionality from the plugin</description>
+  	</component-import>
+  	
+  	 <ao key="ao-module">
+	    <description>The module configuring the Active Objects service used by this plugin</description>
+	    <entity>com.transcendmanagement.jira.plugin.product.entity.Product</entity>
+  	</ao>
+  
+    
+</atlassian-plugin>

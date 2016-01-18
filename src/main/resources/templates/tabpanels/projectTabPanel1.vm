@@ -1,0 +1,155 @@
+$webResourceManager.requireResource("com.transcendmanagement.jira.plugin.jira-project-templates-plugin:jira-project-templates-plugin-resources");
+<html lang="en">
+    <head>
+	    <meta charset="utf-8" />
+	    <meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+	    <title>AUI - Default Page</title>
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+	    <script type="text/javascript">
+        	AJS.$(document).ready(function() {
+        	
+        		//loadIsuseStatusChart();	
+        		//loadMultiLineChart("TMAX-69");
+        		//loadGanttChart("TMAX-69");
+        		
+        	
+        		jQuery.ajax({
+					type : "GET",
+					url: AJS.contextPath()+"/rest/api/2/project/TMAX/versions",					
+					dataType: 'json',					
+					success: function(data){
+						
+						jQuery.each(data, function (i, version) {						
+							var verName = version.name;									
+							jQuery('ul#project-versions').append(jQuery('<li id="version">').append(jQuery('<a>').
+							attr('href','#').append(jQuery('<span>').append(verName)))); 
+						});					
+						
+					}
+				});
+				
+				jQuery("#issuesList1").jqGrid({					
+					datatype: 'clientSide',
+					width:"auto",
+					height:"auto",
+					autowidth:true,					
+					height : 'auto',
+					colNames:['Summary','Status'],
+					colModel:[
+						{name:'summary',sortable:false},
+						{name:'status',sortable:false}																	
+					],
+					rowNum:10,
+					rowList:[10,20,30],
+					pager: '#pager2',					
+					caption:"change Packages"
+				});
+				jQuery("#issuesList1").jqGrid('navGrid','#pager2',{edit:false,add:false,del:false});
+				
+				jQuery("#issuesList2").jqGrid({					
+					datatype: 'clientSide',
+					width:"auto",
+					height:"auto",
+					autowidth:true,					
+					height : 'auto',
+					colNames:['Summary','Assignee','Remaining Est'],
+					colModel:[
+						{name:'summary',sortable:false},
+						{name:'assignee',sortable:false},
+						{name:'remainingest',sortable:false}																	
+					],
+					rowNum:10,
+					rowList:[10,20,30],
+					pager: '#pager2',					
+					caption:"Key Activities"
+				});
+				jQuery("#issuesList2").jqGrid('navGrid','#pager2',{edit:false,add:false,del:false});
+
+				jQuery(document).on('click', 'li#version', function(){
+				
+					var versionName = jQuery(this).text(),
+					issues=AJS.contextPath()+"/rest/api/2/search?jql=project=TMAX and issuetype=Milestone and fixVersion='"+versionName+"'&fields=status,summary,assignee,key";
+					
+					jQuery.ajax({
+						type : "GET",
+						url: issues,
+						dataType: 'json',									
+						success: function(data){
+							
+							jQuery('#issuesList1,#issuesList2').jqGrid('clearGridData');
+												
+							jQuery.each(data['issues'], function (i, issue) {
+							
+								var issueFields = issue["fields"],summary,assignee;							
+								summary=issueFields.summary;
+								if(issueFields.assignee==null){
+									assignee = "UnAssaigned"
+								}else{
+									assignee = issueFields.assignee["displayName"];
+								}														
+								var myrow1 = {"status":issueFields.status["name"],"summary":issueFields.summary},
+								myrow2 = {"summary":issueFields.summary,"assignee":assignee,"remainingest":"0"};
+								
+								jQuery("#issuesList1").addRowData(jQuery.jgrid.randId(), myrow1,"first");
+								jQuery("#issuesList1").trigger("reloadGrid");
+								
+								jQuery("#issuesList2").addRowData(jQuery.jgrid.randId(), myrow2,"first");
+								jQuery("#issuesList2").trigger("reloadGrid");
+								
+								//on row click event
+								jQuery("table#issuesList1 tr,table#issuesList2 tr").click(function(){
+									loadIsuseStatusChart(issue.key);
+									loadMultiLineChart(issue.key);									
+									loadLineChart(issue.key);
+									loadGanttChart(issue.key);														
+								});
+								
+							});					
+							
+						}
+					});
+					
+				});
+				
+        	 });
+   		 </script>  
+    </head>
+    <body>
+    	<header class="aui-page-header">
+    		<div id="aui-message-bar"></div>
+		    <div class="aui-page-header-inner">		        
+		        <div class="aui-page-header-main">
+		            <h1>Product Summary</h1>
+		        </div>
+		        <div class="aui-page-header-actions">		          
+	                <!-- Trigger -->
+					<a href="#dwarfers" aria-owns="dwarfers" aria-haspopup="true" 
+						class="aui-button aui-button-primary aui-style-default aui-dropdown2-trigger">Versions</a>
+					<!-- Dropdown -->
+					<div id="dwarfers" class="aui-style-default aui-dropdown2">
+					    <ul id="project-versions" class="aui-list-truncate">					   
+					    </ul>
+					</div>		            
+		        </div>
+		    </div>
+		</header>
+    	<section id="content" role="main">
+		    <div class="aui-page-panel">
+		        <div class="aui-page-panel-inner">
+		            <section class="aui-page-panel-content">
+		               <table id="issuesList1"></table>
+		            </section>
+		            <section id="area-chart" class="aui-page-panel-content">
+		            	#parse("/templates/charts/line-chart.vm") 
+						#parse("/templates/charts/multi-linechart.vm")
+		            	#parse("/templates/charts/stacked_areachart.vm")
+		            	#parse("/templates/charts/gantt-chart.vm")		            	
+		            </section>
+		             <section class="aui-page-panel-content">
+		                <table id="issuesList2"></table>
+		            </section>
+		        </div>
+		    </div>
+		</section>	
+    </body>
+</html>

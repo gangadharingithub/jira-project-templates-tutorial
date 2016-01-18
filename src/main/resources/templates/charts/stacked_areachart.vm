@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+	
+	div#areachartcontainer {
+	  font: 10px sans-serif;
+	}
+	
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
+		
+	.openArea {
+	  fill: red;
+	  opacity:0.5;
+	}
+	
+	.inProgressArea {
+	  fill: green;
+	  opacity:0.5;
+	}
+	
+	.closedArea {
+	  fill: yello;
+	  opacity:0.5;
+	}
+	
+</style>
+<body>
+<div id="areachartcontainer"></div>
+<script>
+
+function loadIsuseStatusChart(issueKey){
+
+	jQuery.ajax({
+		type: "GET",
+		url:AJS.contextPath() +'/rest/project-templates-rest/1.0/issueStatusChart/data',						
+		data:{"issueKey":issueKey},						
+		async : false,
+		statusCode: {
+			409: function() {								
+				return false;
+			}
+		 },
+		 success : function(data) {			 
+			 var data = data.dataPoints;				 
+			 initializeLoadIsuseStatusChart(data);
+		 }
+	});
+	
+}
+
+function initializeLoadIsuseStatusChart(chartData){
+	
+	//	d3.select("body").select("div#areachartcontainer").select("svg").remove();
+	
+	var margin = {top: 20, right: 20, bottom: 30, left: 30},
+    width = 300 - margin.left - margin.right,
+    height = 200 - margin.top - margin.bottom;
+
+	var x = d3.time.scale()
+    .range([0, width]);
+
+	var y = d3.scale.linear()
+	    .range([height, 0]);
+	
+	var xAxis = d3.svg.axis()
+	    .scale(x)
+	    .ticks(5)
+	    .orient("bottom");
+	
+	var yAxis = d3.svg.axis()
+	    .scale(y)
+	    .orient("left");
+    
+    // remove the existing one and add it back to avoiding multiple charts being get added.
+	if(jQuery("div#areachartcontainer svg")!=undefined){
+		jQuery("div#areachartcontainer svg").remove();
+	}
+	
+	data = chartData;
+	
+	var svg = d3.select("body").select("div#areachartcontainer").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")"); 
+    
+    data.forEach(function(d) {
+	    d.date = new Date(d.date);
+	    d.Open = +d.Open;
+	    d["In Progress"] = +d["In Progress"];
+	    d.Closed = +d.Closed;
+  	});
+  	
+  	x.domain(d3.extent(data, function(d) { return d.date; }));
+  	//y.domain([0, d3.max(data, function(d) { return d.Open; })]);
+  	y.domain([0, d3.max(data, function(d) { return Math.max(d.Open,d["In Progress"],d.Closed);})]);
+    
+    // ===================================
+      
+    var area = d3.svg.area()
+    .x(function(d) { return x(d.date); })
+    .y0(height)
+    .y1(function(d) { return y(d.Open); });   
+  	
+	svg.append("path")
+      .datum(data)
+      .attr("class", "openArea")
+      .attr("d", area);        
+      
+    //==============================
+      
+	var area = d3.svg.area()
+    .x(function(d) { return x(d.date); })
+    .y0(height)
+    .y1(function(d) { return y(d["In Progress"]); });   
+  	
+	svg.append("path")
+      .datum(data)
+      .attr("class", "inProgressArea")
+      .attr("d", area);
+      
+	//==================================
+	
+	var area = d3.svg.area()
+    .x(function(d) { return x(d.date); })
+    .y0(height)
+    .y1(function(d) { return y(d.Closed); });   
+  	
+	svg.append("path")
+      .datum(data)
+      .attr("class", "closedArea")
+      .attr("d", area);
+      
+    //===============================	
+	
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Count");
+    
+}
+
+</script>

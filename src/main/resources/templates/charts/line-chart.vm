@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+#linechartcontainer" {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+</style>
+<body>
+<div id="linechartcontainer"></div>
+<script>
+
+function loadLineChart(issueKey){
+	
+	jQuery.ajax({
+		type: "GET",
+		url:AJS.contextPath() +'/rest/project-templates-rest/1.0/deliveryControlChart/data',						
+		data:{"issueKey":issueKey},						
+		async : false,
+		statusCode: {
+			409: function() {								
+				return false;
+			}
+		 },
+		 success : function(data) {			 
+			 //var data = data.dataPoints;
+			 var data = [
+				            {date :"11-Jan-12","probability":40},
+				            {date :"11-Feb-12","probability":40},
+							{date :"11-Mar-12","probability":40},
+							{date :"11-Apr-12","probability":40},
+							{date :"11-May-12","probability":40},
+							{date :"11-Jun-12","probability":20},
+							{date :"11-Jul-12","probability":10}      	
+				      	  ];
+			 
+			 initializeGraph(data);
+		 }
+	});
+
+function initializeGraph(data){
+	
+		var margin = {top: 20, right: 20, bottom: 30, left: 30},
+	    width = 300 - margin.left - margin.right,
+	    height = 200 - margin.top - margin.bottom;
+	
+		var parseDate = d3.time.format("%d-%b-%y").parse;		
+		
+		var x = d3.time.scale()
+		    .range([0, width]);
+		
+		var y = d3.scale.linear()
+		    .range([height, 0]);
+		
+		var xAxis = d3.svg.axis()
+		    .scale(x)
+		    .orient("bottom");
+		
+		var yAxis = d3.svg.axis()
+		    .scale(y)
+		    .orient("left");
+		
+		var line = d3.svg.line()
+		    .x(function(d) { return x(d.date); })
+		    .y(function(d) { return y(d.probability); });
+		
+		//remove the existing one and add it back to avoiding multiple charts being get added.
+		if(jQuery("div#linechartcontainer svg")!=undefined){
+			jQuery("div#linechartcontainer svg").remove();
+		}
+		
+		//var svg = d3.select("body").select("div#linechartcontainer")
+		
+		var svg = d3.select("body").select("div#linechartcontainer").append("svg")
+		    .attr("width", width + margin.left + margin.right)
+		    .attr("height", height + margin.top + margin.bottom)
+		  .append("g")
+		    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		
+		/*var data = [
+		            {date :"11-Jan-12","probability":40},
+		            {date :"11-Feb-12","probability":40},
+					{date :"11-Mar-12","probability":50},
+					{date :"11-Apr-12","probability":60},
+					{date :"11-May-12","probability":70},
+					{date :"11-Jun-12","probability":50},
+					{date :"11-Jul-12","probability":40}      	
+		      	  ];*/
+	
+	//d3.tsv("data.tsv", function(error, data) {
+	  //if (error) throw error;	
+	
+	  data.forEach(function(d) {
+	    //d.date = parseDate(d.date);
+	    d.date = new Date(d.date);
+	    d.probability = +d.probability;
+	  });
+	
+	  x.domain(d3.extent(data, function(d) { return d.date; }));
+	  //y.domain(d3.extent(data, function(d) { return d.probability; }));
+	  y.domain([0,100]);
+	  
+	  console.log(d3.extent(data, function(d) { return d.date; }));
+	
+	  svg.append("g")
+	      .attr("class", "x axis")
+	      .attr("transform", "translate(0," + height + ")")
+	      .call(xAxis);
+	
+	  svg.append("g")
+	      .attr("class", "y axis")
+	      .call(yAxis)
+	    .append("text")
+	      .attr("transform", "rotate(-90)")
+	      .attr("y", 6)
+	      .attr("dy", ".71em")
+	      .style("text-anchor", "end")
+	      .text("Probability (%)");
+	
+	  svg.append("path")
+	      .datum(data)
+	      .attr("class", "line")
+	      .attr("d", line);
+	
+	}
+
+}
+
+
+//});
+
+</script>

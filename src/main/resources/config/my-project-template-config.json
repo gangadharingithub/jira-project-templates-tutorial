@@ -1,0 +1,128 @@
+{
+  "issue-type-scheme":
+  {
+    "name": "tm.project.template.issuetype.scheme.name",
+    "description": "tm.project.template.issuetype.scheme.description",
+    "issue-types": [
+      {
+        "key": "issueType1",
+        "name": "BMC Assumption",
+        "description": "An assumption surrounding the Business Model Canvas.",
+        "icon": "/images/icons/BMC-Assumption.png"        
+      },
+      {
+        "key": "issueType2",
+        "name": "Analysis",
+        "description": "An analysis sub-task.",
+        "icon": "/images/icons/Analysis.png",
+        "sub-task": true        
+      },
+      {
+        "key": "issueType3",
+        "name": "Interview",
+        "description": "An interview sub-task.",
+        "icon": "/images/icons/Interview.png",
+        "sub-task": true       
+      },
+      {
+        "key": "issueType4",
+        "name": "Research",
+        "description": "Research being performed.",
+        "icon": "/images/icons/Research.png",
+        "sub-task": true
+      },
+      {
+        "key": "issueType5",
+        "name": "Sub-test",
+        "description": "A sub-test.",
+        "icon": "/images/icons/subtest.png",
+        "sub-task": true
+      },
+      {
+        "key": "issueType6",
+        "name": "Requirement",
+        "description": "A requirement or specification.",
+        "icon": "/images/icons/Requirement.png"
+      },
+      {
+        "key": "issueType7",
+        "name": "Story",
+        "description": "A description of what is desired by the customer or user.",
+        "icon": "/images/icons/Story.png"
+      },
+      {
+        "key": "issueType8",
+        "name": "New Feature",
+        "description": "A new feature being added to the software or product.",
+        "icon": "/images/icons/New-Feature.png"
+      },
+      {
+        "key": "issueType9",
+        "name": "Improvement",
+        "description": "An improvement being added to the software or product.",
+        "icon": "/images/icons/Improvement.png"
+      },
+      {
+        "key": "issueType10",
+        "name": "Task",
+        "description": "An activities that needs to be performed.",
+        "icon": "/images/icons/Task.png"
+      },
+      {
+        "key": "issueType11",
+        "name": "Milestone",
+        "description": "The endpoint to the schedule.",
+        "icon": "/images/icons/Milestone.png"
+      },
+      {
+        "key": "issueType12",
+        "name": "Sub-task",
+        "description": "A sub-task.",
+        "icon": "/images/icons/Sub-task.png",
+        "sub-task": true
+      },
+      {
+        "key": "issueType13",
+        "name": "Work Order",
+        "description": "Work that needs to be performed .",
+        "icon": "/images/icons/Work-Order.png"
+      },
+      {
+        "key": "issueType14",
+        "name": "Article",
+        "description": "A component, part or product used for testing.",
+        "icon": "/images/icons/Article.png"
+      },
+      {
+        "key": "issueType15",
+        "name": "Test",
+        "description": "A test performed.",
+        "icon": "/images/icons/Test.png"
+      },
+      {
+        "key": "issueType16",
+        "name": "Bug",
+        "description": "A problem with software operation.",
+        "icon": "/images/icons/Bug.png"
+      },
+      {
+        "key": "issueType17",
+        "name": "Deficiency",
+        "description": "An issue where the product has fallen short of expectations.",
+        "icon": "/images/icons/Deficiency.png"
+      },
+      {
+        "key": "issueType18",
+        "name": "Innovation",
+        "description": "A large change package.",
+        "icon": "/images/icons/Epic.png"
+      },
+      {
+        "key": "issueType19",
+        "name": "Buffer",
+        "description": "Project Buffer.",
+        "icon": "/images/icons/Buffer.png"
+      }
+    ]
+  }
+}
